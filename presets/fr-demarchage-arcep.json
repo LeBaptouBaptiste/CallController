@@ -1,0 +1,28 @@
+{
+  "id": "fr-demarchage-arcep",
+  "name": "Anti-démarchage France (ARCEP)",
+  "description": "Tranches de numéros polyvalents vérifiés (NPV) réservées par l'ARCEP au démarchage téléphonique automatisé. Obligatoires depuis le 1er janvier 2023. Aucun appelant légitime n'utilise ces préfixes.",
+  "version": 1,
+  "author": "communauté",
+  "source": "https://www.arcep.fr/mes-demarches-et-services/entreprises/fiches-pratiques/plan-numerotation-professionnels.html",
+  "note": "Préfixes en format national (0...). Le moteur de matching normalise les numéros entrants (ex. +33 1 62 -> 0162) avant comparaison. L'ARCEP peut allouer de nouvelles tranches : incrémenter `version` et mettre à jour `rules` le cas échéant.",
+  "rules": [
+    { "type": "prefix", "value": "0162", "label": "Métropole" },
+    { "type": "prefix", "value": "0163", "label": "Métropole" },
+    { "type": "prefix", "value": "0270", "label": "Métropole" },
+    { "type": "prefix", "value": "0271", "label": "Métropole" },
+    { "type": "prefix", "value": "0377", "label": "Métropole" },
+    { "type": "prefix", "value": "0378", "label": "Métropole" },
+    { "type": "prefix", "value": "0424", "label": "Métropole" },
+    { "type": "prefix", "value": "0425", "label": "Métropole" },
+    { "type": "prefix", "value": "0568", "label": "Métropole" },
+    { "type": "prefix", "value": "0569", "label": "Métropole" },
+    { "type": "prefix", "value": "0948", "label": "Métropole" },
+    { "type": "prefix", "value": "0949", "label": "Métropole" },
+    { "type": "prefix", "value": "09475", "label": "Outre-mer" },
+    { "type": "prefix", "value": "09476", "label": "Outre-mer" },
+    { "type": "prefix", "value": "09477", "label": "Outre-mer" },
+    { "type": "prefix", "value": "09478", "label": "Outre-mer" },
+    { "type": "prefix", "value": "09479", "label": "Outre-mer" }
+  ]
+}
