@@ -1,0 +1,4 @@
+<resources>
+    <!-- Thème de base de l'Activity (Compose gère le reste du design). -->
+    <style name="Theme.CallController" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
