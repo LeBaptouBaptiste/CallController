@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package fr.voyager3.callcontroller.ui
 
 import androidx.compose.foundation.layout.Box
@@ -5,10 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -23,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import fr.voyager3.callcontroller.matching.ActionRegle
 
-/** Écran racine : navigation par onglets et répartition de l'état vers chaque écran. */
+/** Écran racine : barre supérieure, navigation par onglets, répartition de l'état. */
 @Composable
 fun AppCallController(
     viewModel: AppViewModel,
@@ -38,6 +44,18 @@ fun AppCallController(
     val listeBlanche = regles.filter { it.action == ActionRegle.AUTORISER }
 
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(if (destination == Destination.ACCUEIL) "CallController" else destination.titre) },
+                actions = {
+                    if (destination == Destination.JOURNAL && journal.isNotEmpty()) {
+                        IconButton(onClick = viewModel::viderJournal) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Vider le journal")
+                        }
+                    }
+                },
+            )
+        },
         bottomBar = {
             NavigationBar {
                 Destination.entries.forEach { dest ->
@@ -51,7 +69,11 @@ fun AppCallController(
             }
         },
     ) { contentPadding ->
-        Box(Modifier.fillMaxSize().padding(contentPadding)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+        ) {
             when (destination) {
                 Destination.ACCUEIL -> EcranAccueil(
                     roleAccorde = roleAccorde,
@@ -63,7 +85,6 @@ fun AppCallController(
                 )
 
                 Destination.REGLES -> EcranRegles(
-                    titre = "Règles de blocage",
                     sousTitre = "Numéros rejetés automatiquement",
                     regles = reglesBlocage,
                     action = ActionRegle.BLOQUER,
@@ -73,7 +94,6 @@ fun AppCallController(
                 )
 
                 Destination.LISTE_BLANCHE -> EcranRegles(
-                    titre = "Liste blanche",
                     sousTitre = "Toujours autorisés, même si une règle correspond",
                     regles = listeBlanche,
                     action = ActionRegle.AUTORISER,
@@ -82,10 +102,7 @@ fun AppCallController(
                     onSupprimer = viewModel::supprimer,
                 )
 
-                Destination.JOURNAL -> EcranJournal(
-                    appels = journal,
-                    onVider = viewModel::viderJournal,
-                )
+                Destination.JOURNAL -> EcranJournal(appels = journal)
             }
         }
     }
