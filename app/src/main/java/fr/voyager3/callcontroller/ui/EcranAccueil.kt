@@ -21,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +43,8 @@ fun EcranAccueil(
     nombreReglesBlocage: Int,
     nombreListeBlanche: Int,
     nombreAppelsBloques: Int,
+    bloquerMasques: Boolean,
+    onBloquerMasquesChange: (Boolean) -> Unit,
     onTester: (String) -> ResultatEvaluation,
     onDemanderRole: () -> Unit,
     modifier: Modifier = Modifier,
@@ -65,6 +68,8 @@ fun EcranAccueil(
                 LigneStat(Icons.Filled.Notifications, "Appels bloqués (journal)", nombreAppelsBloques)
             }
         }
+
+        CarteReglages(bloquerMasques, onBloquerMasquesChange)
 
         CarteTest(onTester)
 
@@ -134,6 +139,27 @@ private fun LigneStat(icone: ImageVector, libelle: String, valeur: Int) {
         Icon(icone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Text(libelle, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         Text(valeur.toString(), style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
+private fun CarteReglages(bloquerMasques: Boolean, onChange: (Boolean) -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Bloquer les numéros masqués", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Appels sans numéro affiché (privé, inconnu).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(checked = bloquerMasques, onCheckedChange = onChange)
+        }
     }
 }
 

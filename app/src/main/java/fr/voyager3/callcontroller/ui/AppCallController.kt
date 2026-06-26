@@ -39,6 +39,7 @@ fun AppCallController(
     var destination by remember { mutableStateOf(Destination.ACCUEIL) }
     val regles by viewModel.regles.collectAsState(initial = emptyList())
     val journal by viewModel.journal.collectAsState(initial = emptyList())
+    val bloquerMasques by viewModel.bloquerMasques.collectAsState(initial = false)
 
     val reglesBlocage = regles.filter { it.action == ActionRegle.BLOQUER }
     val listeBlanche = regles.filter { it.action == ActionRegle.AUTORISER }
@@ -80,6 +81,8 @@ fun AppCallController(
                     nombreReglesBlocage = reglesBlocage.count { it.actif },
                     nombreListeBlanche = listeBlanche.count { it.actif },
                     nombreAppelsBloques = journal.size,
+                    bloquerMasques = bloquerMasques,
+                    onBloquerMasquesChange = viewModel::definirBloquerMasques,
                     onTester = viewModel::tester,
                     onDemanderRole = onDemanderRole,
                 )

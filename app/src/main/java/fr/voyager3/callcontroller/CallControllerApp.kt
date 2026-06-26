@@ -2,6 +2,7 @@ package fr.voyager3.callcontroller
 
 import android.app.Application
 import fr.voyager3.callcontroller.di.AppContainer
+import fr.voyager3.callcontroller.matching.CacheReglages
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -17,9 +18,12 @@ class CallControllerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        // Sème le preset par défaut, puis garde en continu le cache du service à jour.
+        // Sème le preset par défaut, puis garde en continu les caches du service à jour.
         porteeApp.launch { container.depotRegles.amorcerSiVide() }
         porteeApp.launch { container.depotRegles.maintenirCacheAJour() }
+        porteeApp.launch {
+            container.depotReglages.bloquerMasques.collect { CacheReglages.bloquerMasques = it }
+        }
     }
 
     /**
