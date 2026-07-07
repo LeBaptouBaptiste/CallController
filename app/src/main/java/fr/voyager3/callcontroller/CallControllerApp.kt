@@ -3,8 +3,8 @@ package fr.voyager3.callcontroller
 import android.app.Application
 import android.util.Log
 import fr.voyager3.callcontroller.di.AppContainer
+import fr.voyager3.callcontroller.matching.CacheParametres
 import fr.voyager3.callcontroller.matching.CacheRegles
-import fr.voyager3.callcontroller.matching.CacheReglages
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,8 +46,8 @@ class CallControllerApp : Application() {
         }
 
         porteeApp.launch {
-            container.depotReglages.bloquerMasques.collect { actif ->
-                CacheReglages.bloquerMasques = actif
+            container.depotParametres.bloquerMasques.collect { actif ->
+                CacheParametres.bloquerMasques = actif
                 reglagesPrets.complete(Unit)
             }
         }

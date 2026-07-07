@@ -4,8 +4,8 @@ import android.telecom.Call
 import android.telecom.CallScreeningService
 import android.telecom.TelecomManager
 import fr.voyager3.callcontroller.CallControllerApp
+import fr.voyager3.callcontroller.matching.CacheParametres
 import fr.voyager3.callcontroller.matching.CacheRegles
-import fr.voyager3.callcontroller.matching.CacheReglages
 import fr.voyager3.callcontroller.matching.Decision
 import fr.voyager3.callcontroller.matching.ResultatEvaluation
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +45,7 @@ class ServiceFiltrageAppels : CallScreeningService() {
         val numero = callDetails.handle?.schemeSpecificPart
         val masque = estMasque(callDetails, numero)
         val resultat = when {
-            CacheReglages.bloquerMasques && masque ->
+            CacheParametres.bloquerMasques && masque ->
                 ResultatEvaluation(Decision.REJETER, MOTIF_MASQUE)
 
             !numero.isNullOrBlank() -> CacheRegles.moteur.evaluerDetail(numero)

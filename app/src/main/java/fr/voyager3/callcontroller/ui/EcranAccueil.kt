@@ -69,7 +69,7 @@ fun EcranAccueil(
             }
         }
 
-        CarteReglages(bloquerMasques, onBloquerMasquesChange)
+        CarteParametres(bloquerMasques, onBloquerMasquesChange)
 
         CarteTest(onTester)
 
@@ -143,7 +143,7 @@ private fun LigneStat(icone: ImageVector, libelle: String, valeur: Int) {
 }
 
 @Composable
-private fun CarteReglages(bloquerMasques: Boolean, onChange: (Boolean) -> Unit) {
+private fun CarteParametres(bloquerMasques: Boolean, onChange: (Boolean) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),

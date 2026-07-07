@@ -5,7 +5,7 @@ import androidx.room.Room
 import fr.voyager3.callcontroller.data.BaseDeDonnees
 import fr.voyager3.callcontroller.data.ChargeurPreset
 import fr.voyager3.callcontroller.data.DepotJournal
-import fr.voyager3.callcontroller.data.DepotReglages
+import fr.voyager3.callcontroller.data.DepotParametres
 import fr.voyager3.callcontroller.data.DepotRegles
 
 /**
@@ -27,5 +27,5 @@ class AppContainer(context: Context) {
 
     val depotJournal: DepotJournal = DepotJournal(baseDeDonnees.appelBloqueDao())
 
-    val depotReglages: DepotReglages = DepotReglages(context)
+    val depotParametres: DepotParametres = DepotParametres(context)
 }

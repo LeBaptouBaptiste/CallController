@@ -20,8 +20,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
 )
 
-/** Réglages persistés de l'application (DataStore Preferences). */
-class DepotReglages(private val context: Context) {
+/** Paramètres persistés de l'application (DataStore Preferences). */
+class DepotParametres(private val context: Context) {
 
     private val cleBloquerMasques = booleanPreferencesKey("bloquer_masques")
 
