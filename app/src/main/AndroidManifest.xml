@@ -2,10 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-      Aucune permission sensible déclarée : le rôle ROLE_CALL_SCREENING suffit à
-      filtrer les appels et à lire le numéro entrant. Vie privée d'abord — toute
-      permission ajoutée devra être justifiable pour la policy Google Play.
+      Le rôle ROLE_CALL_SCREENING suffit à filtrer les appels et à lire le numéro
+      entrant. Aucune permission sensible : vie privée d'abord.
+      INTERNET (permission normale, non dangereuse) sert uniquement à télécharger
+      les presets communautaires publics ; aucune donnée d'appel n'est envoyée.
     -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".CallControllerApp"

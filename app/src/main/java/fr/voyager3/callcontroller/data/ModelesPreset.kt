@@ -29,7 +29,11 @@ data class RegleDto(
             "regex" -> TypeRegle.REGEX
             else -> return null
         }
-        if (value.isBlank()) return null
+        if (value.isBlank() || value.length > MAX_LONGUEUR_VALEUR) return null
         return Regle(type = typeRegle, valeur = value.trim(), presetId = presetId)
+    }
+
+    private companion object {
+        const val MAX_LONGUEUR_VALEUR = 200
     }
 }

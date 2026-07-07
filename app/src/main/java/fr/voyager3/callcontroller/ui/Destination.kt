@@ -5,5 +5,6 @@ enum class Destination(val titre: String) {
     ACCUEIL("Accueil"),
     REGLES("Règles"),
     LISTE_BLANCHE("Liste blanche"),
+    PRESETS("Presets"),
     JOURNAL("Journal"),
 }

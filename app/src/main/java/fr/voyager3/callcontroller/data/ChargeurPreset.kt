@@ -17,11 +17,23 @@ class ChargeurPreset(private val context: Context) {
         val contenu = context.assets.open("presets/$fichier")
             .bufferedReader()
             .use { it.readText() }
+        return parser(contenu)
+    }
+
+    /**
+     * Parse et valide un preset (JSON) en règles de domaine. Utilisé pour les
+     * presets embarqués comme pour ceux téléchargés — tout input est borné.
+     */
+    fun parser(contenu: String): List<Regle> {
         val preset = json.decodeFromString<PresetDto>(contenu)
-        return preset.rules.mapNotNull { it.versDomaine(preset.id) }
+        return preset.rules.asSequence()
+            .take(MAX_REGLES)
+            .mapNotNull { it.versDomaine(preset.id) }
+            .toList()
     }
 
     companion object {
         const val PRESET_ARCEP = "fr-demarchage-arcep.json"
+        private const val MAX_REGLES = 10_000
     }
 }

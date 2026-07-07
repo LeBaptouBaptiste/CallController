@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +42,9 @@ fun AppCallController(
     val regles by viewModel.regles.collectAsState(initial = emptyList())
     val journal by viewModel.journal.collectAsState(initial = emptyList())
     val bloquerMasques by viewModel.bloquerMasques.collectAsState(initial = false)
+    val abonnements by viewModel.abonnements.collectAsState(initial = emptySet())
+    val etatCatalogue by viewModel.etatCatalogue.collectAsState()
+    val erreurAction by viewModel.erreurAction.collectAsState()
 
     val reglesBlocage = regles.filter { it.action == ActionRegle.BLOQUER }
     val listeBlanche = regles.filter { it.action == ActionRegle.AUTORISER }
@@ -47,12 +52,22 @@ fun AppCallController(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(if (destination == Destination.ACCUEIL) "CallController" else destination.titre) },
+                title = {
+                    Text(if (destination == Destination.ACCUEIL) "CallController" else destination.titre)
+                },
                 actions = {
-                    if (destination == Destination.JOURNAL && journal.isNotEmpty()) {
-                        IconButton(onClick = viewModel::viderJournal) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Vider le journal")
+                    when (destination) {
+                        Destination.JOURNAL -> if (journal.isNotEmpty()) {
+                            IconButton(onClick = viewModel::viderJournal) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Vider le journal")
+                            }
                         }
+
+                        Destination.PRESETS -> IconButton(onClick = viewModel::rafraichirCatalogue) {
+                            Icon(Icons.Filled.Refresh, contentDescription = "Rafraîchir")
+                        }
+
+                        else -> Unit
                     }
                 },
             )
@@ -105,6 +120,16 @@ fun AppCallController(
                     onSupprimer = viewModel::supprimer,
                 )
 
+                Destination.PRESETS -> EcranPresets(
+                    etat = etatCatalogue,
+                    abonnements = abonnements,
+                    erreurAction = erreurAction,
+                    onSabonner = viewModel::sabonner,
+                    onSeDesabonner = viewModel::seDesabonner,
+                    onRafraichir = viewModel::rafraichirCatalogue,
+                    onEffacerErreur = viewModel::effacerErreur,
+                )
+
                 Destination.JOURNAL -> EcranJournal(appels = journal)
             }
         }
@@ -115,5 +140,6 @@ private fun iconePour(destination: Destination): ImageVector = when (destination
     Destination.ACCUEIL -> Icons.Filled.Home
     Destination.REGLES -> Icons.Filled.Phone
     Destination.LISTE_BLANCHE -> Icons.Filled.CheckCircle
+    Destination.PRESETS -> Icons.Filled.Star
     Destination.JOURNAL -> Icons.Filled.Notifications
 }
