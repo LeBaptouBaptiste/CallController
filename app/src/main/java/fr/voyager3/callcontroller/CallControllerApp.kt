@@ -1,14 +1,16 @@
 package fr.voyager3.callcontroller
 
 import android.app.Application
+import android.util.Log
 import fr.voyager3.callcontroller.di.AppContainer
+import fr.voyager3.callcontroller.matching.CacheRegles
 import fr.voyager3.callcontroller.matching.CacheReglages
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 
 class CallControllerApp : Application() {
 
@@ -17,28 +19,44 @@ class CallControllerApp : Application() {
 
     private val porteeApp = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    // Signaux d'amorçage attendus par le service de screening avant de décider :
+    // ferme la fenêtre « fail open » du démarrage à froid, sans bloquer de thread.
+    private val reglesPretes = CompletableDeferred<Unit>()
+    private val reglagesPrets = CompletableDeferred<Unit>()
+
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
 
-        // Chargement initial SYNCHRONE : le système appelle onCreate() AVANT de lier
-        // le service de screening. On garantit ainsi que les caches lus dans
-        // onScreenCall sont prêts dès le premier appel, même après un démarrage à
-        // froid du process — sinon l'appel passait « fail open » pendant le
-        // chargement asynchrone. Borné par un timeout de sécurité.
-        runBlocking {
-            withTimeoutOrNull(DELAI_AMORCAGE_MS) {
-                container.depotRegles.amorcerSiVide()
-                container.depotRegles.rafraichirCacheMaintenant()
-                CacheReglages.bloquerMasques = container.depotReglages.lireBloquerMasques()
-            }
+        // Sème le preset par défaut (une fois), puis alimente en continu le cache
+        // du service. Le semis se termine toujours (aucun timeout annulable).
+        porteeApp.launch {
+            runCatching { container.depotRegles.amorcerSiVide() }
+                .onFailure { Log.e(TAG, "Semis du preset par défaut impossible", it) }
+
+            container.depotRegles.reglesActives
+                .catch { erreur ->
+                    Log.e(TAG, "Lecture des règles impossible", erreur)
+                    emit(emptyList())
+                }
+                .collect { regles ->
+                    CacheRegles.remplacer(regles)
+                    reglesPretes.complete(Unit)
+                }
         }
 
-        // Maintien réactif pour les changements ultérieurs (ajout de règle, toggle...).
-        porteeApp.launch { container.depotRegles.maintenirCacheAJour() }
         porteeApp.launch {
-            container.depotReglages.bloquerMasques.collect { CacheReglages.bloquerMasques = it }
+            container.depotReglages.bloquerMasques.collect { actif ->
+                CacheReglages.bloquerMasques = actif
+                reglagesPrets.complete(Unit)
+            }
         }
+    }
+
+    /** Suspend jusqu'à ce que les caches lus par le service soient amorcés. */
+    suspend fun attendrePret() {
+        reglesPretes.await()
+        reglagesPrets.await()
     }
 
     /**
@@ -50,6 +68,6 @@ class CallControllerApp : Application() {
     }
 
     private companion object {
-        const val DELAI_AMORCAGE_MS = 3000L
+        const val TAG = "CallController"
     }
 }
