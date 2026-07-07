@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "reglages")
@@ -22,4 +23,7 @@ class DepotReglages(private val context: Context) {
     suspend fun definirBloquerMasques(valeur: Boolean) {
         context.dataStore.edit { prefs -> prefs[cleBloquerMasques] = valeur }
     }
+
+    /** Lecture unique du réglage (pour l'amorçage synchrone du cache au démarrage). */
+    suspend fun lireBloquerMasques(): Boolean = bloquerMasques.first()
 }

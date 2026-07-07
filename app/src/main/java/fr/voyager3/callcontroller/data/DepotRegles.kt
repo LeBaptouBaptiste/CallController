@@ -5,6 +5,7 @@ import fr.voyager3.callcontroller.matching.CacheRegles
 import fr.voyager3.callcontroller.matching.Regle
 import fr.voyager3.callcontroller.matching.TypeRegle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
@@ -36,6 +37,15 @@ class DepotRegles(
      */
     suspend fun maintenirCacheAJour() {
         reglesActives.collect { CacheRegles.remplacer(it) }
+    }
+
+    /**
+     * Charge immédiatement le cache du service (lecture unique, bloquante côté
+     * appelant). Appelé au démarrage pour garantir que les règles sont prêtes
+     * avant le premier appel screené (évite le fail-open sur démarrage à froid).
+     */
+    suspend fun rafraichirCacheMaintenant() {
+        CacheRegles.remplacer(reglesActives.first())
     }
 
     suspend fun ajouter(valeur: String, type: TypeRegle, action: ActionRegle) {

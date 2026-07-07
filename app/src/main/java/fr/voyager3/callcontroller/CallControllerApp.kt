@@ -7,6 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 class CallControllerApp : Application() {
 
@@ -18,8 +20,21 @@ class CallControllerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        // Sème le preset par défaut, puis garde en continu les caches du service à jour.
-        porteeApp.launch { container.depotRegles.amorcerSiVide() }
+
+        // Chargement initial SYNCHRONE : le système appelle onCreate() AVANT de lier
+        // le service de screening. On garantit ainsi que les caches lus dans
+        // onScreenCall sont prêts dès le premier appel, même après un démarrage à
+        // froid du process — sinon l'appel passait « fail open » pendant le
+        // chargement asynchrone. Borné par un timeout de sécurité.
+        runBlocking {
+            withTimeoutOrNull(DELAI_AMORCAGE_MS) {
+                container.depotRegles.amorcerSiVide()
+                container.depotRegles.rafraichirCacheMaintenant()
+                CacheReglages.bloquerMasques = container.depotReglages.lireBloquerMasques()
+            }
+        }
+
+        // Maintien réactif pour les changements ultérieurs (ajout de règle, toggle...).
         porteeApp.launch { container.depotRegles.maintenirCacheAJour() }
         porteeApp.launch {
             container.depotReglages.bloquerMasques.collect { CacheReglages.bloquerMasques = it }
@@ -32,5 +47,9 @@ class CallControllerApp : Application() {
      */
     fun journaliserAppelBloque(numero: String, motif: String?) {
         porteeApp.launch { container.depotJournal.enregistrer(numero, motif) }
+    }
+
+    private companion object {
+        const val DELAI_AMORCAGE_MS = 3000L
     }
 }
