@@ -29,4 +29,10 @@ interface RegleDao {
 
     @Query("DELETE FROM regles WHERE id = :id")
     suspend fun supprimer(id: Long)
+
+    @Query("SELECT DISTINCT presetId FROM regles WHERE presetId IS NOT NULL")
+    fun observerPresetIds(): Flow<List<String>>
+
+    @Query("DELETE FROM regles WHERE presetId = :presetId")
+    suspend fun supprimerPreset(presetId: String)
 }

@@ -6,7 +6,9 @@ import fr.voyager3.callcontroller.data.BaseDeDonnees
 import fr.voyager3.callcontroller.data.ChargeurPreset
 import fr.voyager3.callcontroller.data.DepotJournal
 import fr.voyager3.callcontroller.data.DepotParametres
+import fr.voyager3.callcontroller.data.DepotPresets
 import fr.voyager3.callcontroller.data.DepotRegles
+import fr.voyager3.callcontroller.data.SourcePresets
 
 /**
  * Conteneur d'injection de dépendances manuel (YAGNI : pas de framework DI tant
@@ -28,4 +30,9 @@ class AppContainer(context: Context) {
     val depotJournal: DepotJournal = DepotJournal(baseDeDonnees.appelBloqueDao())
 
     val depotParametres: DepotParametres = DepotParametres(context)
+
+    private val sourcePresets = SourcePresets()
+
+    val depotPresets: DepotPresets =
+        DepotPresets(sourcePresets, chargeurPreset, baseDeDonnees.regleDao())
 }

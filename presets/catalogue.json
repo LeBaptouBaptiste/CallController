@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "presets": [
+    {
+      "id": "fr-demarchage-arcep",
+      "name": "Anti-démarchage France (ARCEP)",
+      "description": "Tranches de numéros polyvalents vérifiés (NPV) réservées au démarchage automatisé. Preset par défaut.",
+      "version": 1,
+      "url": "https://raw.githubusercontent.com/LeBaptouBaptiste/CallController/main/presets/fr-demarchage-arcep.json"
+    }
+  ]
+}
