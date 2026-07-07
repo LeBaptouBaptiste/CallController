@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import fr.voyager3.callcontroller.data.AppelBloque
 import fr.voyager3.callcontroller.data.DepotJournal
+import fr.voyager3.callcontroller.data.DepotParametres
 import fr.voyager3.callcontroller.data.DepotRegles
 import fr.voyager3.callcontroller.di.AppContainer
 import fr.voyager3.callcontroller.matching.ActionRegle
@@ -21,10 +22,12 @@ import kotlinx.coroutines.launch
 class AppViewModel(
     private val depotRegles: DepotRegles,
     private val depotJournal: DepotJournal,
+    private val depotParametres: DepotParametres,
 ) : ViewModel() {
 
     val regles: Flow<List<Regle>> = depotRegles.regles
     val journal: Flow<List<AppelBloque>> = depotJournal.appels
+    val bloquerMasques: Flow<Boolean> = depotParametres.bloquerMasques
 
     fun ajouter(valeur: String, type: TypeRegle, action: ActionRegle) {
         viewModelScope.launch { depotRegles.ajouter(valeur, type, action) }
@@ -42,12 +45,18 @@ class AppViewModel(
         viewModelScope.launch { depotJournal.vider() }
     }
 
+    fun definirBloquerMasques(valeur: Boolean) {
+        viewModelScope.launch { depotParametres.definirBloquerMasques(valeur) }
+    }
+
     /** Évalue un numéro contre les règles actives (même moteur que le service de screening). */
     fun tester(numero: String): ResultatEvaluation = CacheRegles.moteur.evaluerDetail(numero)
 
     companion object {
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
-            initializer { AppViewModel(container.depotRegles, container.depotJournal) }
+            initializer {
+                AppViewModel(container.depotRegles, container.depotJournal, container.depotParametres)
+            }
         }
     }
 }

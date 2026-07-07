@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -39,7 +40,6 @@ import fr.voyager3.callcontroller.matching.TypeRegle
  */
 @Composable
 fun EcranRegles(
-    titre: String,
     sousTitre: String,
     regles: List<Regle>,
     action: ActionRegle,
@@ -54,8 +54,11 @@ fun EcranRegles(
             .fillMaxSize()
             .padding(16.dp),
     ) {
-        Text(titre, style = MaterialTheme.typography.headlineSmall)
-        Text(sousTitre, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = sousTitre,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Spacer(Modifier.height(12.dp))
 
         Button(onClick = { dialogueOuvert = true }, modifier = Modifier.fillMaxWidth()) {
@@ -66,12 +69,16 @@ fun EcranRegles(
         Spacer(Modifier.height(12.dp))
 
         if (regles.isEmpty()) {
-            Text(
-                text = "Aucune entrée pour l'instant.",
-                style = MaterialTheme.typography.bodyMedium,
+            EtatVide(
+                icone = Icons.Filled.Phone,
+                message = "Aucune entrée pour l'instant.\nAjoute un préfixe ou un motif.",
+                modifier = Modifier.weight(1f),
             )
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 items(regles, key = { it.id }) { regle ->
                     LigneRegle(
                         regle = regle,
@@ -105,10 +112,20 @@ private fun LigneRegle(
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Icon(
+                imageVector = Icons.Filled.Phone,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
             Column(modifier = Modifier.weight(1f)) {
                 Text(regle.valeur, style = MaterialTheme.typography.titleMedium)
-                Text(libelleSousTitre(regle), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = libelleSousTitre(regle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Switch(checked = regle.actif, onCheckedChange = { onBasculer() })
             IconButton(onClick = onSupprimer) {

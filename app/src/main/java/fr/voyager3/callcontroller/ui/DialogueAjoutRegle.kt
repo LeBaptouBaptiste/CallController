@@ -1,14 +1,17 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package fr.voyager3.callcontroller.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -16,14 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import fr.voyager3.callcontroller.matching.ActionRegle
 import fr.voyager3.callcontroller.matching.TypeRegle
 
-/** Dialogue d'ajout d'une règle (préfixe par défaut, regex en mode avancé). */
+/** Dialogue d'ajout d'une règle : sélection préfixe/regex puis saisie de la valeur. */
 @Composable
 fun DialogueAjoutRegle(
     action: ActionRegle,
@@ -44,6 +46,18 @@ fun DialogueAjoutRegle(
         title = { Text(titre) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = !modeRegex,
+                        onClick = { modeRegex = false },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                    ) { Text("Préfixe") }
+                    SegmentedButton(
+                        selected = modeRegex,
+                        onClick = { modeRegex = true },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    ) { Text("Regex") }
+                }
                 OutlinedTextField(
                     value = valeur,
                     onValueChange = { valeur = it },
@@ -56,12 +70,8 @@ fun DialogueAjoutRegle(
                     } else {
                         KeyboardOptions(keyboardType = KeyboardType.Phone)
                     },
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Switch(checked = modeRegex, onCheckedChange = { modeRegex = it })
-                    Spacer(Modifier.width(8.dp))
-                    Text("Mode avancé (regex)")
-                }
             }
         },
         confirmButton = {
