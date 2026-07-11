@@ -44,6 +44,15 @@ android {
         }
     }
 
+    // Nomme l'APK d'après le projet et sa version (ex. CallController-0.1.0.apk) au
+    // lieu du "app-release.apk" par défaut — plus parlant sur les Releases GitHub.
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName = "CallController-$versionName.apk"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
