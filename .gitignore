@@ -11,3 +11,8 @@
 
 # Presets générés : copiés depuis /presets à la compilation (voir app/build.gradle.kts).
 /app/src/main/assets/presets/
+
+# Secrets de signature : ne JAMAIS committer un keystore ni son encodage base64.
+*.jks
+*.keystore
+*.b64

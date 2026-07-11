@@ -19,6 +19,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            // Renseigné uniquement en CI via des variables d'environnement issues de
+            // secrets (voir .github/workflows/release.yml). En local sans keystore, le
+            // build release reste non signé sans échouer. Zéro secret dans le dépôt.
+            System.getenv("KEYSTORE_FILE")?.let { chemin ->
+                storeFile = file(chemin)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -26,6 +40,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
         }
     }
 
