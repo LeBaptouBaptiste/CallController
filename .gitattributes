@@ -1,2 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Le script du wrapper doit rester en LF, sinon il casse sur les runners Linux
+# (shebang avec CRLF -> "bad interpreter"). Le .bat Windows exige du CRLF.
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+*.jar binary
