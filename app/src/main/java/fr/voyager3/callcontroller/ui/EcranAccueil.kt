@@ -79,13 +79,13 @@ fun EcranAccueil(
 
         CarteTest(onTester)
 
-        CarteDon()
-
         if (!roleAccorde) {
             Button(onClick = onDemanderRole, modifier = Modifier.fillMaxWidth()) {
                 Text("Activer le filtrage des appels")
             }
         }
+
+        CarteDon()
     }
 }
 
@@ -133,7 +133,6 @@ private fun CarteDon() {
 
 private fun ouvrirLien(context: Context, url: String) {
     val intention = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     try {
         context.startActivity(intention)
     } catch (_: ActivityNotFoundException) {
