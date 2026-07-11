@@ -1,5 +1,9 @@
 package fr.voyager3.callcontroller.ui
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Warning
@@ -31,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import fr.voyager3.callcontroller.matching.Decision
@@ -73,11 +79,65 @@ fun EcranAccueil(
 
         CarteTest(onTester)
 
+        CarteDon()
+
         if (!roleAccorde) {
             Button(onClick = onDemanderRole, modifier = Modifier.fillMaxWidth()) {
                 Text("Activer le filtrage des appels")
             }
         }
+    }
+}
+
+// Lien de don public — dons uniquement (cf. SPEC.md). Ouvert dans le navigateur :
+// aucune donnée d'appel ne transite, aucun SDK de paiement embarqué.
+private const val URL_KOFI = "https://ko-fi.com/baptistevidal"
+
+@Composable
+private fun CarteDon() {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Soutenir le projet",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                Text(
+                    text = "Gratuit et open-source. Un don soutient le développement.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
+            Button(onClick = { ouvrirLien(context, URL_KOFI) }) {
+                Text("Faire un don")
+            }
+        }
+    }
+}
+
+private fun ouvrirLien(context: Context, url: String) {
+    val intention = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    try {
+        context.startActivity(intention)
+    } catch (_: ActivityNotFoundException) {
+        // Aucun navigateur disponible : rien à faire, on n'interrompt pas l'utilisateur.
     }
 }
 
