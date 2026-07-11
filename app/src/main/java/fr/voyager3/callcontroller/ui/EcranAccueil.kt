@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -136,7 +137,7 @@ private fun ouvrirLien(context: Context, url: String) {
     try {
         context.startActivity(intention)
     } catch (_: ActivityNotFoundException) {
-        // Aucun navigateur disponible : rien à faire, on n'interrompt pas l'utilisateur.
+        Toast.makeText(context, "Aucun navigateur disponible", Toast.LENGTH_SHORT).show()
     }
 }
 
