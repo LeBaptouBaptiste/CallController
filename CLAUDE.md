@@ -13,11 +13,11 @@ CallController est une application **Android** (iOS éventuellement plus tard) d
 
 ## État du projet
 
-⚠️ **Projet en amorçage — pas encore de code.** Ce fichier décrit l'**architecture cible** et les **règles de collaboration**. Les sections « Build Commands » et la structure exacte des modules seront complétées **au moment du scaffold**. Ne pas considérer l'archi ci-dessous comme figée tant que le projet n'est pas initialisé.
+**MVP fonctionnel.** Le projet est scaffoldé (Gradle, Kotlin, Jetpack Compose) et les briques du MVP sont en place : `CallScreeningService`, moteur de matching préfixe/regex (testé en JVM), persistance Room, paramètres DataStore, synchro des presets communautaires (catalogue GitHub) et UI Compose (accueil, règles, liste blanche, presets, journal). L'architecture décrite ci-dessous reflète le **code réel**, mais reste amenée à évoluer.
 
 ## Build Commands
 
-> _À compléter une fois le projet Android scaffoldé (Gradle)._ Cibles attendues :
+Le wrapper Gradle est versionné : ces commandes fonctionnent sur un clone frais (aucune installation de Gradle requise). La CI (`.github/workflows/ci.yml`) exécute `testDebugUnitTest` + `lintDebug` sur chaque PR.
 
 ```bash
 # Build debug
@@ -48,7 +48,7 @@ Le filtrage d'appels **doit** être natif Android : il repose sur `CallScreening
 2. Le service évalue le numéro contre les **règles actives** (préfixe / pattern) déjà chargées en mémoire.
 3. Il répond au système : autoriser / rejeter / silencieux / sans notif / hors journal.
 
-### Découpage envisagé (à confirmer au scaffold)
+### Découpage (implémenté)
 
 - **Screening** — le `CallScreeningService` et le moteur de décision. Hot path : doit être rapide et fonctionner hors-ligne.
 - **Matching** — moteur de règles (préfixes, patterns). Logique **pure**, sans dépendance Android → testable en unitaire JVM. C'est le cœur métier.
@@ -79,8 +79,8 @@ Le filtrage d'appels **doit** être natif Android : il repose sur `CallScreening
 | Langage | Kotlin |
 | UI | Jetpack Compose |
 | Filtrage d'appels | `CallScreeningService` / `ROLE_CALL_SCREENING` (API 29+) |
-| Stockage local | _À décider au scaffold (Room ou DataStore selon le besoin)_ |
-| Injection de dépendances | _À décider (Hilt conseillé)_ |
+| Stockage local | Room (règles, journal) + DataStore (paramètres) |
+| Injection de dépendances | Manuelle (`AppContainer`) — pas de Hilt au MVP (KISS) |
 | Asynchronisme | Coroutines Kotlin |
 | Presets communautaires | Fichiers JSON hébergés sur GitHub (pas de backend au MVP) |
 | Backend (phase 2+) | Rust (Axum) — seulement si votes/signalements/modération |
@@ -133,7 +133,7 @@ Avant de proposer du code, Claude doit valider mentalement ces 3 piliers. Si un 
 - **Vie privée d'abord** : traitement **local**, **zéro télémétrie tierce**, aucune exfiltration de numéros. C'est un engagement produit, pas une option.
 - **Permissions minimales** : ne demander que ce qui est strictement nécessaire (le rôle Call Screening suffit pour bloquer). Éviter `READ_CALL_LOG` / `READ_CONTACTS` sauf besoin justifié — **chaque permission doit être défendable** au regard de la policy Google Play sur les permissions d'appels.
 - **Presets = input non fiable** : ils viennent de la communauté et contiennent des patterns exécutés sur l'appareil.
-  - **Regex → risque ReDoS** (catastrophic backtracking). Limiter la complexité, borner le temps d'évaluation, et **privilégier les règles de préfixe** aux regex libres quand c'est possible.
+  - **Regex → risque ReDoS** (catastrophic backtracking). **Résolu par conception** : les regex sont évaluées via **RE2** (`com.google.re2j`), moteur à temps linéaire où le backtracking catastrophique est impossible ; le numéro évalué est en outre borné en longueur. Continuer à **privilégier les règles de préfixe** aux regex libres quand c'est possible.
   - Valider le JSON contre un **schéma** (types, tailles, bornes) avant usage.
   - Téléchargement **HTTPS uniquement**, vérifier l'intégrité de la source.
 - **Zéro secret hardcodé** : tokens, clés → config, jamais dans le code ni committé.
