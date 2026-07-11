@@ -72,5 +72,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
 
+    // Moteur regex à temps linéaire : neutralise le ReDoS des presets communautaires.
+    implementation(libs.re2j)
+
     testImplementation(libs.junit)
 }

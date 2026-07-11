@@ -59,4 +59,21 @@ class MoteurDeFiltrageTest {
         assertEquals(Decision.REJETER, resultat.decision)
         assertEquals("0162", resultat.motif)
     }
+
+    // Un motif à backtracking catastrophique confronté à une entrée hostile très
+    // longue : sur un moteur classique cela gèle le hot path (ReDoS). RE2 (temps
+    // linéaire) et la borne de longueur garantissent une évaluation immédiate ;
+    // le timeout échouerait en cas de régression.
+    @Test(timeout = 2000)
+    fun `une regex catastrophique ne provoque pas de ReDoS`() {
+        val m = moteur(Regle(type = TypeRegle.REGEX, valeur = "(.*[0-9]){15}z"))
+        assertEquals(Decision.AUTORISER, m.evaluer("9".repeat(100_000)))
+    }
+
+    @Test
+    fun `un numero anormalement long est borne avant matching`() {
+        val m = moteur(Regle(type = TypeRegle.PREFIXE, valeur = "0162"))
+        // La troncature préserve la détection du préfixe et borne le coût.
+        assertEquals(Decision.REJETER, m.evaluer("0162" + "9".repeat(1_000)))
+    }
 }

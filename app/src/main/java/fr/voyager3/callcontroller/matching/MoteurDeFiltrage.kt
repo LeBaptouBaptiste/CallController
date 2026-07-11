@@ -1,5 +1,8 @@
 package fr.voyager3.callcontroller.matching
 
+import com.google.re2j.Pattern
+import com.google.re2j.PatternSyntaxException
+
 /** Résultat d'une évaluation : la décision et, le cas échéant, le motif qui l'a déclenchée. */
 data class ResultatEvaluation(val decision: Decision, val motif: String? = null)
 
@@ -9,6 +12,13 @@ data class ResultatEvaluation(val decision: Decision, val motif: String? = null)
  *
  * Logique pure (aucune dépendance Android) afin d'être couverte par des tests
  * unitaires JVM — c'est le cœur métier.
+ *
+ * Sécurité (anti-ReDoS) : les regex proviennent de presets communautaires, donc
+ * d'un input non fiable. On les évalue avec RE2 ([com.google.re2j.Pattern]), un
+ * moteur à temps d'exécution linéaire où le backtracking catastrophique est
+ * impossible par conception. En complément, le numéro évalué est borné en
+ * longueur ([MAX_LONGUEUR_NUMERO]) : au-delà ce n'est pas un vrai numéro, et le
+ * plafond retire tout levier d'explosion résiduel dans le hot path de screening.
  */
 class MoteurDeFiltrage(regles: List<Regle>) {
 
@@ -19,7 +29,7 @@ class MoteurDeFiltrage(regles: List<Regle>) {
     private val bloquants: List<Critere> = compiler(regles, ActionRegle.BLOQUER)
 
     fun evaluerDetail(numeroBrut: String): ResultatEvaluation {
-        val numero = NormalisateurNumero.normaliser(numeroBrut)
+        val numero = NormalisateurNumero.normaliser(numeroBrut).take(MAX_LONGUEUR_NUMERO)
         if (numero.isEmpty()) return ResultatEvaluation(Decision.AUTORISER)
 
         autorises.firstOrNull { it.correspond(numero) }
@@ -44,18 +54,26 @@ class MoteurDeFiltrage(regles: List<Regle>) {
             .takeIf { it.isNotEmpty() }
             ?.let { prefixe -> Critere(regle.valeur) { numero -> numero.startsWith(prefixe) } }
 
-        // Les regex communautaires sont compilées une seule fois. La protection
-        // anti-ReDoS (bornage du temps d'évaluation) reste à ajouter avant
-        // d'autoriser des presets regex arbitraires — voir SPEC.md.
-        TypeRegle.REGEX -> compilerRegex(regle.valeur)
-            ?.let { regex -> Critere(regle.valeur) { numero -> regex.matches(numero) } }
+        // RE2 (temps linéaire) : les regex communautaires ne peuvent pas provoquer
+        // de ReDoS. Compilées une seule fois ici, jamais à chaque appel.
+        TypeRegle.REGEX -> compilerMotif(regle.valeur)
+            ?.let { motif -> Critere(regle.valeur) { numero -> motif.matcher(numero).matches() } }
     }
 
-    /** Motif invalide (input non fiable) → règle ignorée plutôt que crash. */
-    private fun compilerRegex(motif: String): Regex? =
+    /**
+     * Motif invalide — syntaxe erronée ou construction non supportée par RE2
+     * (backreferences, lookaround) — ignoré plutôt que de faire planter le moteur.
+     */
+    private fun compilerMotif(motif: String): Pattern? =
         try {
-            Regex(motif)
-        } catch (_: IllegalArgumentException) {
+            Pattern.compile(motif)
+        } catch (_: PatternSyntaxException) {
             null
         }
+
+    private companion object {
+        // E.164 borne un numéro international à 15 chiffres ; on garde une marge.
+        // Au-delà ce n'est pas un numéro légitime : on tronque pour borner le coût.
+        const val MAX_LONGUEUR_NUMERO = 20
+    }
 }
