@@ -4,6 +4,8 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -92,6 +94,7 @@ fun EcranAccueil(
 // Lien de don public — dons uniquement (cf. SPEC.md). Ouvert dans le navigateur :
 // aucune donnée d'appel ne transite, aucun SDK de paiement embarqué.
 private const val URL_KOFI = "https://ko-fi.com/baptistevidal"
+private const val TAG = "CallController"
 
 @Composable
 private fun CarteDon() {
@@ -135,8 +138,9 @@ private fun ouvrirLien(context: Context, url: String) {
     val intention = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     try {
         context.startActivity(intention)
-    } catch (_: ActivityNotFoundException) {
-        // Aucun navigateur disponible : rien à faire, on n'interrompt pas l'utilisateur.
+    } catch (exception: ActivityNotFoundException) {
+        Log.w(TAG, "Aucun navigateur pour ouvrir le lien de don", exception)
+        Toast.makeText(context, "Aucun navigateur disponible", Toast.LENGTH_SHORT).show()
     }
 }
 
