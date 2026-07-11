@@ -76,4 +76,14 @@ class MoteurDeFiltrageTest {
         // La troncature préserve la détection du préfixe et borne le coût.
         assertEquals(Decision.REJETER, m.evaluer("0162" + "9".repeat(1_000)))
     }
+
+    // Verrouille le choix du moteur : les backreferences ne sont pas supportées
+    // par RE2 (c'est justement une source de ReDoS). Un tel motif est donc ignoré
+    // comme invalide. Ce test échouerait avec un moteur à backtracking classique,
+    // qui compilerait le motif et bloquerait "0012345678".
+    @Test
+    fun `une regex avec backreference non supportee par RE2 est ignoree`() {
+        val m = moteur(Regle(type = TypeRegle.REGEX, valeur = "(\\d)\\1\\d*"))
+        assertEquals(Decision.AUTORISER, m.evaluer("0012345678"))
+    }
 }
