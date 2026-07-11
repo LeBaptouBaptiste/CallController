@@ -11,6 +11,7 @@ room = "2.6.1"
 datastore = "1.1.1"
 coroutines = "1.9.0"
 serialization = "1.7.3"
+re2j = "1.8"
 junit = "4.13.2"
 
 [libraries]
@@ -31,6 +32,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+re2j = { group = "com.google.re2j", name = "re2j", version.ref = "re2j" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]
