@@ -1,0 +1,10 @@
+{
+  "id": "fr-spam-mobiles",
+  "name": "Spam mobiles signalés (06/07)",
+  "description": "Numéros mobiles 06/07 signalés comme spam par la communauté.",
+  "version": 1,
+  "author": "communauté",
+  "rules": [
+    { "type": "prefix", "value": "0743135860" },
+  ]
+}
