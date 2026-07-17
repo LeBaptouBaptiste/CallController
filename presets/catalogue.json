@@ -7,6 +7,13 @@
       "description": "Tranches de numéros polyvalents vérifiés (NPV) réservées au démarchage automatisé. Preset par défaut.",
       "version": 1,
       "url": "https://raw.githubusercontent.com/LeBaptouBaptiste/CallController/main/presets/fr-demarchage-arcep.json"
+    },
+    {
+      "id": "fr-spam-mobiles",
+      "name": "Spam mobiles signalés (06/07)",
+      "description": "Numéros mobiles 06/07 signalés comme spam.",
+      "version": 1,
+      "url": "https://raw.githubusercontent.com/LeBaptouBaptiste/CallController/main/presets/fr-spam-mobiles.json"
     }
   ]
 }
