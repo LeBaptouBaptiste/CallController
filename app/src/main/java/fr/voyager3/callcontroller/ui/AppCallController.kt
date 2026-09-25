@@ -36,6 +36,7 @@ import fr.voyager3.callcontroller.matching.ActionRegle
 fun AppCallController(
     viewModel: AppViewModel,
     roleAccorde: Boolean,
+    demandeRoleRefusee: Boolean,
     onDemanderRole: () -> Unit,
 ) {
     var destination by remember { mutableStateOf(Destination.ACCUEIL) }
@@ -93,6 +94,7 @@ fun AppCallController(
             when (destination) {
                 Destination.ACCUEIL -> EcranAccueil(
                     roleAccorde = roleAccorde,
+                    demandeRoleRefusee = demandeRoleRefusee,
                     nombreReglesBlocage = reglesBlocage.count { it.actif },
                     nombreListeBlanche = listeBlanche.count { it.actif },
                     nombreAppelsBloques = journal.size,

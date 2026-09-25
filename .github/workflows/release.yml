@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   apk-signe:
-    name: Build APK signé & Release
+    name: Build APK & AAB signés, Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,13 +32,25 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/keystore.jks"
 
-      - name: Build APK release signé
+      - name: Build APK et AAB release signés
         env:
+          TAG_VERSION: ${{ github.ref_name }}
           KEYSTORE_FILE: ${{ runner.temp }}/keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease bundleRelease --stacktrace
+
+      # L'AAB (non installable tel quel) et le mapping R8 sont destinés à la Play
+      # Console : artefact du run plutôt que fichier public de la Release.
+      - name: Conserver l'AAB pour Google Play
+        uses: actions/upload-artifact@v4
+        with:
+          name: CallController-${{ github.ref_name }}-play
+          path: |
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
 
       - name: Publier la Release GitHub
         env:

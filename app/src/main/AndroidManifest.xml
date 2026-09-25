@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       Le rôle ROLE_CALL_SCREENING suffit à filtrer les appels et à lire le numéro
@@ -9,9 +10,16 @@
     -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+      Aucune sauvegarde ni transfert des données (voir xml/data_extraction_rules).
+      Avant Android 12, allowBackup="false" couvre déjà cloud, D2D et adb :
+      fullBackupContent, réclamé par lint pour API 29-30, serait redondant.
+    -->
     <application
         android:name=".CallControllerApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:ignore="DataExtractionRules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
