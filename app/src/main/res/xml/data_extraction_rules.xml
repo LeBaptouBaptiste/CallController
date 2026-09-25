@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Promesse produit : aucune donnée ne quitte le téléphone. allowBackup="false" coupe
+  la sauvegarde cloud mais, sur Android 12+, certains constructeurs maintiennent le
+  transfert d'appareil à appareil (D2D) : on exclut donc tout, explicitement.
+  Chaque domaine est listé car exclure "root" ne couvre pas les dossiers files,
+  databases et shared_prefs, qui sont parcourus séparément.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </device-transfer>
+</data-extraction-rules>
