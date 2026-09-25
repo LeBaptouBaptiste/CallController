@@ -14,7 +14,7 @@ Application Android **open-source** qui rejette automatiquement les appels de **
 
 ## Stack
 
-Kotlin · Jetpack Compose · `CallScreeningService` (API 29+) · Room · DataStore · RE2 (regex anti-ReDoS) · `minSdk 29` / `targetSdk 35`.
+Kotlin · Jetpack Compose · `CallScreeningService` (API 29+) · Room · DataStore · RE2 (regex anti-ReDoS) · `minSdk 29` / `targetSdk 36`.
 
 ## Build & run
 

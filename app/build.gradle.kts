@@ -8,12 +8,14 @@ plugins {
 
 android {
     namespace = "fr.voyager3.callcontroller"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "fr.voyager3.callcontroller"
+        // 29 : premier niveau où ROLE_CALL_SCREENING existe.
         minSdk = 29
-        targetSdk = 35
+        // 36 : exigé par Google Play pour toute nouvelle app ou mise à jour depuis le 31/08/2026.
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
