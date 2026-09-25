@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.voyager3.callcontroller.matching.Decision
 import fr.voyager3.callcontroller.matching.ResultatEvaluation
@@ -48,6 +51,7 @@ import fr.voyager3.callcontroller.matching.ResultatEvaluation
 @Composable
 fun EcranAccueil(
     roleAccorde: Boolean,
+    demandeRoleRefusee: Boolean,
     nombreReglesBlocage: Int,
     nombreListeBlanche: Int,
     nombreAppelsBloques: Int,
@@ -85,6 +89,7 @@ fun EcranAccueil(
             Button(onClick = onDemanderRole, modifier = Modifier.fillMaxWidth()) {
                 Text("Activer le filtrage des appels")
             }
+            if (demandeRoleRefusee) AideActivationManuelle()
         }
 
         CarteDon()
@@ -134,13 +139,46 @@ private fun CarteDon() {
     }
 }
 
-private fun ouvrirLien(context: Context, url: String) {
-    val intention = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+/**
+ * Affichée après un refus. Si l'utilisateur a coché « Ne plus me demander », le système
+ * rejette toute nouvelle demande sans rien afficher : seuls les réglages permettent
+ * alors d'accorder le rôle.
+ */
+@Composable
+private fun AideActivationManuelle() {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Aucune fenêtre ne s'ouvre ? Dans les applications par défaut, " +
+                "choisis CallController comme appli numéro de l'appelant et spam.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        TextButton(onClick = { ouvrirApplisParDefaut(context) }) {
+            Text("Ouvrir les applications par défaut")
+        }
+    }
+}
+
+private fun ouvrirLien(context: Context, url: String) =
+    demarrer(context, Intent(Intent.ACTION_VIEW, Uri.parse(url)), "Aucun navigateur disponible")
+
+private fun ouvrirApplisParDefaut(context: Context) = demarrer(
+    context,
+    Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+    "Ouvre Paramètres › Applications par défaut",
+)
+
+private fun demarrer(context: Context, intention: Intent, messageSiIndisponible: String) {
     try {
         context.startActivity(intention)
     } catch (exception: ActivityNotFoundException) {
-        Log.w(TAG, "Aucun navigateur pour ouvrir le lien de don", exception)
-        Toast.makeText(context, "Aucun navigateur disponible", Toast.LENGTH_SHORT).show()
+        Log.w(TAG, messageSiIndisponible, exception)
+        Toast.makeText(context, messageSiIndisponible, Toast.LENGTH_LONG).show()
     }
 }
 
