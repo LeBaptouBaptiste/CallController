@@ -6,6 +6,16 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Le tag Git qui déclenche la release (TAG_VERSION = "v1.2.3", voir
+// .github/workflows/release.yml) est la seule source de vérité de la version.
+// Sans tag (build local), on produit une version de développement.
+val numerosVersion: List<Int>? = System.getenv("TAG_VERSION")?.let { tag ->
+    val correspondance = requireNotNull(Regex("""v(\d{1,3})\.(\d{1,3})\.(\d{1,3})""").matchEntire(tag)) {
+        "TAG_VERSION invalide : « $tag » (attendu : vX.Y.Z, chaque nombre ≤ 999)"
+    }
+    correspondance.groupValues.drop(1).map(String::toInt)
+}
+
 android {
     namespace = "fr.voyager3.callcontroller"
     compileSdk = 36
@@ -16,8 +26,12 @@ android {
         minSdk = 29
         // 36 : exigé par Google Play pour toute nouvelle app ou mise à jour depuis le 31/08/2026.
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // Google Play exige un versionCode strictement croissant : 3 chiffres par
+        // composante, v1.2.3 → 1 002 003.
+        versionCode = numerosVersion?.let { (majeur, mineur, correctif) ->
+            majeur * 1_000_000 + mineur * 1_000 + correctif
+        } ?: 1
+        versionName = numerosVersion?.joinToString(".") ?: "0.0.0-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
