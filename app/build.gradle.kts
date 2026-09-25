@@ -36,6 +36,11 @@ android {
     }
 
     buildTypes {
+        // Le suffixe permet d'installer le debug à côté de la release signée, sans
+        // la désinstaller (donc sans perdre ses règles ni son journal).
+        debug {
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(
