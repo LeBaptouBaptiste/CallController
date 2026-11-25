@@ -7,6 +7,7 @@
   "rules": [
     { "type": "prefix", "value": "0743135860" },
     { "type": "prefix", "value": "0743137450" },
-    { "type": "prefix", "value": "0743133416" }
+    { "type": "prefix", "value": "0743133416" },
+    { "type": "prefix", "value": "0743137496" }
   ]
 }
